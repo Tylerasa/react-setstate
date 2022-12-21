@@ -11,7 +11,7 @@ Navigate to the line you want the state to created on and press
 
 to bring up the command palette, and then type `React setState`. Enter the state's name and press enter (separated by a comma).
 
-![gif](./assets/gif.gif)
+![gif](https://github.com/Tylerasa/react-setstate/raw/main/assets/gif.gif)
 
 
 
