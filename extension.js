@@ -7,6 +7,12 @@ function activate(context) {
   let disposable = vscode.commands.registerCommand(
     "react-setstate.setState",
     async function () {
+      const editor = vscode.window.activeTextEditor;
+
+      if (!editor) {
+        return;
+      }
+      const isTypeScript = editor.document.languageId === "typescript";
       const inputText = await vscode.window.showInputBox({
         placeHolder: "Eg: show modal",
         prompt:
@@ -51,12 +57,12 @@ function activate(context) {
       console.log("defaultValue", defaultValue);
 
       if (defaultValue !== undefined) {
-        defaultValueText = getFormattedDefaultValue(defaultValue);
+        defaultValueText = getFormattedDefaultValue(isTypeScript, defaultValue);
       }
 
-      const text = `const [${transformedState} , ${transformedAction}] = useState(${defaultValueText})`;
-
-      const editor = vscode.window.activeTextEditor;
+      const text = `const [${transformedState} , ${transformedAction}] = useState${
+        isTypeScript ? `<${defaultValueText.type}>` : ""
+      }(${defaultValueText.value})`;
 
       if (editor) {
         const selection = editor.selection;
@@ -78,22 +84,54 @@ function capitalize(word) {
   return word.charAt().toUpperCase() + word.slice(1);
 }
 
-function getFormattedDefaultValue(value) {
+// function getFormattedDefaultValue(value) {
+//   try {
+//     const parsedValue = JSON.parse(value);
+//     return JSON.stringify(parsedValue, null, 2);
+//   } catch (error) {
+//     // If parsing as JSON fails, check for boolean or number
+//     if (isBooleanOrNumber(value)) {
+//       return value;
+//     }
+
+//     return `"${value}"`;
+//   }
+// }
+function getFormattedDefaultValue(isTypeScript, value) {
   try {
     const parsedValue = JSON.parse(value);
-	console.log("parsing");
-    return JSON.stringify(parsedValue, null, 2);
-  } catch (error) {
-    // If parsing as JSON fails, check for boolean or number
-    if (isBooleanOrNumber(value)) {
-      return value;
+
+    if (isTypeScript) {
+      if (typeof parsedValue === "string") {
+        return { type: "string", value: `"${parsedValue}"` };
+      } else if (typeof parsedValue === "number") {
+        return { type: "number", value: parsedValue };
+      } else if (typeof parsedValue === "boolean") {
+        return { type: "boolean", value: parsedValue };
+      } else if (parsedValue !== null && typeof parsedValue === "object") {
+        return { type: "any", value: JSON.stringify(parsedValue, null, 2) }
+      }
+    } else {
+      try {
+        return { type: "", value: JSON.stringify(parsedValue, null, 2) };
+      } catch (error) {
+        if (isBooleanOrNumber(value)) {
+          return { type: "", value };
+        }
+
+        return { type: "", value: `"${value}"` };
+      }
     }
-    
-    return `"${value}"`;
+  } catch (error) {
+    if (isBooleanOrNumber(value)) {
+      return { type: isTypeScript ? "boolean" : "", value: value };
+    }
+    return { type: "string", value: `"${value}"` };
   }
 }
 
 function isBooleanOrNumber(value) {
+  console.log("isBooleanOrNumber"), value;
   return (
     value.toLowerCase() === "true" ||
     value.toLowerCase() === "false" ||
