@@ -84,32 +84,20 @@ function capitalize(word) {
   return word.charAt().toUpperCase() + word.slice(1);
 }
 
-// function getFormattedDefaultValue(value) {
-//   try {
-//     const parsedValue = JSON.parse(value);
-//     return JSON.stringify(parsedValue, null, 2);
-//   } catch (error) {
-//     // If parsing as JSON fails, check for boolean or number
-//     if (isBooleanOrNumber(value)) {
-//       return value;
-//     }
-
-//     return `"${value}"`;
-//   }
-// }
 function getFormattedDefaultValue(isTypeScript, value) {
   try {
     const parsedValue = JSON.parse(value);
 
     if (isTypeScript) {
       if (typeof parsedValue === "string") {
-        return { type: "string", value: `"${parsedValue}"` };
+        const sanitizedValue = parsedValue.replace(/"/g, "'");
+        return { type: "string", value: `"${sanitizedValue}"` };
       } else if (typeof parsedValue === "number") {
         return { type: "number", value: parsedValue };
       } else if (typeof parsedValue === "boolean") {
         return { type: "boolean", value: parsedValue };
       } else if (parsedValue !== null && typeof parsedValue === "object") {
-        return { type: "any", value: JSON.stringify(parsedValue, null, 2) }
+        return { type: "any", value: JSON.stringify(parsedValue, null, 2) };
       }
     } else {
       try {
@@ -145,5 +133,8 @@ module.exports = {
 };
 
 // - intelligence grabbing done
-// -  typescript support
+// -  typescript support done
+// |  - infer types for objects
+// |  - replace single quotes with double quotes
+
 // - object support done
