@@ -83,8 +83,6 @@ function capitalize(word) {
   return word.charAt().toUpperCase() + word.slice(1);
 }
 
-
-
 function getFormattedDefaultValue(isTypeScript, value) {
   const isObjectLike = (str) => {
     return /^{.*}$/.test(str.trim());
@@ -110,6 +108,8 @@ function getFormattedDefaultValue(isTypeScript, value) {
     } else {
       if (isBooleanOrNumber(value)) {
         return { type: isTypeScript ? "boolean" : "any", value: value };
+      } else if (parsedValue !== null && typeof parsedValue === "object") {
+        return { type: "object", value: JSON.stringify(parsedValue) };
       }
       // Treat as a string if not a boolean or number
       const sanitizedValue = value.replace(/"/g, "'");
