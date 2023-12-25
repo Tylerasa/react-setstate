@@ -14,7 +14,7 @@ function activate(context) {
       }
       const isTypeScript = editor.document.languageId === "typescript";
       const inputText = await vscode.window.showInputBox({
-        placeHolder: "Eg: show modal",
+        placeHolder: "Eg: is active, true",
         prompt:
           "Enter the name of your state, and optionally, provide a default value separated by a comma.",
       });
@@ -77,7 +77,6 @@ function activate(context) {
   context.subscriptions.push(disposable);
 }
 
-// This method is called when your extension is deactivated
 function deactivate() {}
 
 function capitalize(word) {
@@ -85,76 +84,51 @@ function capitalize(word) {
 }
 
 
-// function getFormattedDefaultValue(isTypeScript, value) {
-//   try {
-//     const parsedValue = JSON.parse(value);
-
-//     if (isTypeScript) {
-//       if (typeof parsedValue === "string") {
-//         const sanitizedValue = parsedValue.replace(/"/g, "'");
-//         return { type: "string", value: `"${sanitizedValue}"` };
-//       } else if (typeof parsedValue === "number") {
-//         return { type: "number", value: parsedValue };
-//       } else if (typeof parsedValue === "boolean") {
-//         return { type: "boolean", value: parsedValue };
-//       } else if (parsedValue !== null && typeof parsedValue === "object") {
-//         // Check for object type
-//         return { type: "any", value: JSON.stringify(parsedValue) }; // You may need to customize this based on your use case
-//       }
-//     }
-//   } catch (error) {
-//     // If parsing as JSON fails, check for boolean or number
-//     if (isBooleanOrNumber(value)) {
-//       return { type: isTypeScript ? "boolean" : "any", value: value };
-//     }
-//     // Treat as a string if not a boolean or number
-//     const sanitizedValue = value.replace(/"/g, "'");
-//     return { type: "string", value: `"${sanitizedValue}"` };
-//   }
-
-//   // If TypeScript is false and parsing fails, default to treating the value as a string
-//   const sanitizedValue = value.replace(/"/g, "'");
-//   return { type: "string", value: `"${sanitizedValue}"` };
-// }
-
 
 function getFormattedDefaultValue(isTypeScript, value) {
   const isObjectLike = (str) => {
-      // Check if the string represents an object-like structure
-      return /^{.*}$/.test(str.trim());
+    return /^{.*}$/.test(str.trim());
   };
 
   try {
-      const parsedValue = isObjectLike(value) ? eval(`(${value})`) : JSON.parse(value);
-
-      if (isTypeScript) {
-          if (typeof parsedValue === 'string') {
-              const sanitizedValue = parsedValue.replace(/"/g, "'");
-              return { type: 'string', value: `"${sanitizedValue}"` };
-          } else if (typeof parsedValue === 'number') {
-              return { type: 'number', value: parsedValue };
-          } else if (typeof parsedValue === 'boolean') {
-              return { type: 'boolean', value: parsedValue };
-          } else if (parsedValue !== null && typeof parsedValue === 'object') {
-              // Check for object type
-              return { type: 'any', value: JSON.stringify(parsedValue) }; // You may need to customize this based on your use case
-          }
+    const parsedValue = isObjectLike(value)
+      ? eval(`(${value})`)
+      : JSON.parse(value);
+    console.log("parsedValue", parsedValue);
+    if (isTypeScript) {
+      if (typeof parsedValue === "string") {
+        const sanitizedValue = parsedValue.replace(/"/g, "'");
+        return { type: "string", value: `"${sanitizedValue}"` };
+      } else if (typeof parsedValue === "number") {
+        return { type: "number", value: parsedValue };
+      } else if (typeof parsedValue === "boolean") {
+        return { type: "boolean", value: parsedValue };
+      } else if (parsedValue !== null && typeof parsedValue === "object") {
+        // Check for object type
+        return { type: "any", value: JSON.stringify(parsedValue) }; // You may need to customize this based on your use case
       }
-  } catch (error) {
-      // If parsing as JSON fails, check for boolean or number
+    } else {
       if (isBooleanOrNumber(value)) {
-          return { type: isTypeScript ? 'boolean' : 'any', value: value };
+        return { type: isTypeScript ? "boolean" : "any", value: value };
       }
       // Treat as a string if not a boolean or number
       const sanitizedValue = value.replace(/"/g, "'");
-      return { type: 'string', value: `"${sanitizedValue}"` };
+      return { type: "string", value: `"${sanitizedValue}"` };
+    }
+  } catch (error) {
+    console.log("fail");
+    // If parsing as JSON fails, check for boolean or number
+    if (isBooleanOrNumber(value)) {
+      return { type: isTypeScript ? "boolean" : "any", value: value };
+    }
+    // Treat as a string if not a boolean or number
+    const sanitizedValue = value.replace(/"/g, "'");
+    return { type: "string", value: `"${sanitizedValue}"` };
   }
 
-  // If TypeScript is false and parsing fails, default to treating the value as a string
   const sanitizedValue = value.replace(/"/g, "'");
-  return { type: 'string', value: `"${sanitizedValue}"` };
+  return { type: "string", value: `"${sanitizedValue}"` };
 }
-
 
 function isBooleanOrNumber(value) {
   console.log("isBooleanOrNumber"), value;
@@ -174,5 +148,6 @@ module.exports = {
 // -  typescript support done
 // |  - infer types for objects
 // |  - replace single quotes with double quotes
+// support for Objects
 
 // - object support done
