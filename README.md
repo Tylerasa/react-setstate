@@ -19,7 +19,13 @@ This Visual Studio Code extension simplifies the creation of React useState hook
     
 - Enter the state name and, optionally, provide a default value separated by a comma (stateName, defaultValue).
 
-çNote
+
+
+![gif](https://github.com/Tylerasa/react-setstate/raw/main/assets/gif.gif)
+
+
+
+### Note
 
 - When providing object-like structures as default values, use a format like {key: "value"}.
 - The extension handles various default value types, including strings, numbers, booleans, and object-like structures.
