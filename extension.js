@@ -12,7 +12,8 @@ function activate(context) {
       if (!editor) {
         return;
       }
-      const isTypeScript = editor.document.languageId === "typescript";
+      const isTypeScript = editor.document.languageId.includes('typescript');
+      console.log("editor.document.languageId", isTypeScript);
       const inputText = await vscode.window.showInputBox({
         placeHolder: "Eg: is active, true",
         prompt:
